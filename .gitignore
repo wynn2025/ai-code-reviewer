@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+demo_*.json
+*.tmp
+.env
+*.bak
+xianyu_listings.md
+demo_chart.png
+AI_Coding_Tools_Report_2026.md
