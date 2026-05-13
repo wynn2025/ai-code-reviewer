@@ -1,0 +1,30 @@
+{
+  "name": "AI Code Reviewer",
+  "name_cn": "AI代码审查助手",
+  "version": "1.0.0",
+  "author": "AI Tools Workshop",
+  "license": "MIT",
+  "description": "调用DeepSeek API自动审查代码，发现Bug/安全漏洞，生成结构化改进报告。支持30+语言，GitHub Actions集成。",
+  "features": [
+    "调用DeepSeek API智能审查",
+    "支持30+编程语言",
+    "自动评分+分级报告",
+    "GitHub Actions CI/CD集成",
+    "具体修复建议+示例代码",
+    "单文件零依赖"
+  ],
+  "price": 39,
+  "currency": "CNY",
+  "target_platforms": [
+    "xianyu",
+    "github"
+  ],
+  "tags": [
+    "code-review",
+    "deepseek",
+    "security",
+    "bug-detection"
+  ],
+  "file": "ai_code_reviewer.py",
+  "lines": 421
+}
