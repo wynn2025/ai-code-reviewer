@@ -1,0 +1,3 @@
+# AI Code Reviewer - Zero external dependencies!
+# Uses only Python standard library
+# Just set your DEEPSEEK_API_KEY and run

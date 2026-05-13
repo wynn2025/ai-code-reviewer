@@ -1,0 +1,67 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate PR diff
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD > pr_changes.patch
+          echo "Diff size: $(wc -l < pr_changes.patch) lines"
+
+      - name: Run AI Code Review
+        id: review
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          python ai_code_reviewer.py \
+            --diff pr_changes.patch \
+            --ci \
+            --output review_report.md
+
+      - name: Post review comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let review = '';
+            try {
+              review = fs.readFileSync('review_report.md', 'utf8');
+            } catch(e) {
+              review = 'Review failed to generate.';
+            }
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: review.substring(0, 65535)
+            });
+
+      - name: Check quality gate
+        if: steps.review.outputs.review_score != ''
+        run: |
+          SCORE=${{ steps.review.outputs.review_score }}
+          echo "Review score: $SCORE"
+          if [ "$SCORE" -lt 6 ]; then
+            echo "::warning::Code quality score is low: $SCORE/10"
+          fi
