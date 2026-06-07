@@ -16,7 +16,7 @@
 ### 1. 设置API Key
 
 ```bash
-export DEEPSEEK_API_KEY="your-api-key-here"
+export DEEPSEEK_API_KEY="your-key-here"
 ```
 
 > 获取API Key: [https://platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)
@@ -86,12 +86,6 @@ API: https://api.deepseek.com/chat/completions
 
 # AI Code Review Report
 
-- **File**: `my_app.py`
-- **Time**: 2026-05-14 04:00:00
-- **Reviewer**: AI Code Reviewer (DeepSeek)
-
-# 代码审查报告
-
 ## 概览
 这是一个Flask Web应用，整体结构清晰...
 
@@ -129,15 +123,11 @@ python ai_code_reviewer.py \
 
 ### 示例3：在Pull Request中自动审查（GitHub Actions）
 
-创建 `.github/workflows/code-review.yml`：
-
 ```yaml
 name: AI Code Review
-
 on:
   pull_request:
     types: [opened, synchronize]
-
 jobs:
   review:
     runs-on: ubuntu-latest
@@ -145,11 +135,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Generate diff
         run: |
           git diff origin/${{ github.base_ref }}...HEAD > pr_changes.patch
-
       - name: AI Code Review
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
@@ -158,59 +146,15 @@ jobs:
             --diff pr_changes.patch \
             --ci \
             --output review.md
-
-      - name: Comment PR with review
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const review = fs.readFileSync('review.md', 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: review
-            });
-```
-
-## GitHub Actions 集成详解
-
-工具内置 `--ci` 模式，会自动：
-
-1. **写入Step Summary** - 审查报告自动显示在Actions运行页面
-2. **设置输出变量** - `review_score`（评分）和 `review_status`（状态）
-3. **错误处理** - 审查失败时设置 `review_status=failed`
-
-### 使用输出变量
-
-```yaml
-- name: AI Code Review
-  id: review
-  run: python ai_code_reviewer.py --dir ./src --ci
-
-- name: Check score
-  if: steps.review.outputs.review_score < 7
-  run: |
-    echo "Code quality score too low: ${{ steps.review.outputs.review_score }}"
-    exit 1
 ```
 
 ## 审查报告格式
-
-报告按严重程度分为三级：
 
 | 级别 | 标记 | 说明 |
 |------|------|------|
 | 严重 | 🔴 | Bug、安全漏洞、数据丢失风险 |
 | 中等 | 🟡 | 性能问题、设计缺陷、可维护性 |
 | 建议 | 🟢 | 代码风格、命名规范、可读性 |
-
-每级问题都包含：
-- 问题描述
-- 行号定位
-- 修复建议
-- 示例代码
 
 ## 支持的语言
 
@@ -222,17 +166,25 @@ Python, JavaScript, TypeScript, Java, C, C++, C#, Go, Rust, Ruby, PHP, Swift, Ko
 - DeepSeek API Key
 - 网络连接（调用API）
 
-## 许可证
+---
 
-MIT License
+## 💰 商品信息
+
+| 项目 | 内容 |
+|------|------|
+| **闲鱼售价** | **¥39**（原价¥99，限时特惠） |
+| **一句话卖点** | 一行命令审查30+语言代码，AI自动发现Bug和安全漏洞——程序员的代码保镖 |
+| **交付形式** | 完整Python源码(421行) + 详细README文档 + GitHub Actions配置模板 + MIT开源 |
+| **运行环境** | Python 3.6+，需DeepSeek API Key（注册免费送500万token） |
+| **适合人群** | 学生毕设 / 初中级程序员 / 技术团队负责人 / 开源项目维护者 |
+| **上架状态** | ✅ 可上架 |
+
+> 📦 购买即获：源码 + 文档 + CI/CD模板 + 永久使用 + 持续更新
 
 ## 常见问题
 
 **Q: 支持其他LLM API吗？**
-A: 支持！通过 `--api-url` 参数指定任何OpenAI兼容的API端点即可。例如：
-```bash
-python ai_code_reviewer.py --file main.py --api-url https://api.openai.com/v1/chat/completions --model gpt-4
-```
+A: 支持！通过 `--api-url` 参数指定任何OpenAI兼容的API端点即可。
 
 **Q: 审查大项目会很慢吗？**
 A: 串行调用API，每个文件约5-15秒。使用 `--max-files` 控制数量。
@@ -240,5 +192,6 @@ A: 串行调用API，每个文件约5-15秒。使用 `--max-files` 控制数量�
 **Q: 会修改我的代码吗？**
 A: 绝对不会！工具只读取和分析代码，生成报告，不修改任何文件。
 
-**Q: 如何在本地测试GitHub Actions？**
-A: 设置 `GITHUB_OUTPUT` 和 `GITHUB_STEP_SUMMARY` 环境变量指向临时文件即可模拟。
+## 许可证
+
+MIT License
